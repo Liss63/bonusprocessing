@@ -60,6 +60,7 @@ class BonusProcessing(XMLRPC):
         print request.getClientIP()
 
         card = yield self.cardscollection.find_one({"code":code})
+
         print card
         if card != None:
             res = yield card['balance']
@@ -89,8 +90,6 @@ class BonusProcessing(XMLRPC):
         """
         Int balance by code
         """
-        balance = inc_value
-
         print 'Call IncBalance'
         print request.getClientIP()
 
@@ -99,8 +98,6 @@ class BonusProcessing(XMLRPC):
             {"$inc": {"balance": inc_value}},
             return_document=ReturnDocument.AFTER
         )
-
-        print rec
 
         res = yield rec['balance']
         defer.returnValue(res)
@@ -111,7 +108,6 @@ class BonusProcessing(XMLRPC):
         """
         Dec balance by code
         """
-        balance = dec_value
         print 'Call DecBalance'
         print request.getClientIP()
         rec = yield self.cardscollection.find_one_and_update(
@@ -119,8 +115,6 @@ class BonusProcessing(XMLRPC):
             {"$inc": {"balance": -dec_value}},
             return_document=ReturnDocument.AFTER
         )
-
-        print rec
 
         res = yield rec['balance']
         defer.returnValue(res)
