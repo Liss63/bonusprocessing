@@ -3,6 +3,8 @@ from twisted.web.server import Site
 from txmongo.connection import ConnectionPool
 from twisted.internet import defer
 from pymongo import ReturnDocument
+from twisted.python.util import println
+
 
 class BonusProcessing(XMLRPC):
     """
@@ -25,10 +27,8 @@ class BonusProcessing(XMLRPC):
         """
         Return all passed args.
         """
-        print 'Call echo'
-        print request.getClientIP()
-        res = yield x
-        defer.returnValue(res)
+        println('Call echo ' + repr(request.getClientIP()))
+        defer.returnValue((yield x))
 
     @withRequest
     @defer.inlineCallbacks
@@ -36,10 +36,8 @@ class BonusProcessing(XMLRPC):
         """
         Add card and return true
         """
-        print 'Call AddCard'
-        print request.getClientIP()
+        println('Call AddCard ' + repr(request.getClientIP()))
 
-        res = None
         try:
             self.cardscollection.insert({"code": code, "balance": balance})
             res = yield True
@@ -54,17 +52,9 @@ class BonusProcessing(XMLRPC):
         """
         Get balance by card code
         """
-        balance = 0
-
-        print 'Call GetBalance'
-        print request.getClientIP()
-
+        println('Call GetBalance ' + repr(request.getClientIP()))
         card = yield self.cardscollection.find_one({"code":code})
-
-        print card
-        if card != None:
-            res = yield card['balance']
-
+        res = yield card['balance']
         defer.returnValue(res)
 
     @withRequest
@@ -73,16 +63,14 @@ class BonusProcessing(XMLRPC):
         """
         Set balance by card code
         """
-        print 'Call SetBalance'
-        print request.getClientIP()
+        println('Call SetBalance' + repr(request.getClientIP()))
 
         self.cardscollection.find_one_and_update(
             {"code": code},
             {"$set": {"balance": balance}}
         )
 
-        res = yield True
-        defer.returnValue(res)
+        defer.returnValue((yield True))
 
     @withRequest
     @defer.inlineCallbacks
@@ -90,8 +78,7 @@ class BonusProcessing(XMLRPC):
         """
         Int balance by code
         """
-        print 'Call IncBalance'
-        print request.getClientIP()
+        println('Call IncBalance' + repr(request.getClientIP()))
 
         rec = yield self.cardscollection.find_one_and_update(
             {"code": code},
@@ -108,8 +95,8 @@ class BonusProcessing(XMLRPC):
         """
         Dec balance by code
         """
-        print 'Call DecBalance'
-        print request.getClientIP()
+        println('Call DecBalance' + repr(request.getClientIP()))
+
         rec = yield self.cardscollection.find_one_and_update(
             {"code": code},
             {"$inc": {"balance": -dec_value}},
@@ -118,16 +105,6 @@ class BonusProcessing(XMLRPC):
 
         res = yield rec['balance']
         defer.returnValue(res)
-
-    @withRequest
-    def xmlrpc_add(self, request, a, b):
-        """
-        Return sum of arguments.
-        """
-        print 'Call Add'
-        print request.getClientIP()
-
-        return a + b
 
 
 if __name__ == '__main__':
