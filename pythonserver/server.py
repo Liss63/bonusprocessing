@@ -36,7 +36,7 @@ class BonusProcessing(XMLRPC):
         """
         Add card and return true
         """
-        println('Call AddCard ' + repr(request.getClientIP()))
+        println('Call AddCard ' + repr(request.getClientIP() + ' card ' + repr(code)))
 
         try:
             self.cardscollection.insert({"code": code, "balance": balance})
@@ -52,7 +52,7 @@ class BonusProcessing(XMLRPC):
         """
         Get balance by card code
         """
-        println('Call GetBalance ' + repr(request.getClientIP()))
+        println('Call GetBalance ' + repr(request.getClientIP()) + ' card ' + repr(code))
         card = yield self.cardscollection.find_one({"code":code})
         res = yield card['balance']
         defer.returnValue(res)
@@ -63,7 +63,7 @@ class BonusProcessing(XMLRPC):
         """
         Set balance by card code
         """
-        println('Call SetBalance' + repr(request.getClientIP()))
+        println('Call SetBalance' + repr(request.getClientIP()) + ' card ' + repr(code) + ' balance ' + repr(balance))
 
         self.cardscollection.find_one_and_update(
             {"code": code},
@@ -76,9 +76,9 @@ class BonusProcessing(XMLRPC):
     @defer.inlineCallbacks
     def xmlrpc_IncBalance(self, request, code, inc_value):
         """
-        Int balance by code
+        Inc balance by code
         """
-        println('Call IncBalance' + repr(request.getClientIP()))
+        println('Call IncBalance' + repr(request.getClientIP()) + ' card ' + repr(code) + ' balance ' + repr(inc_value))
 
         rec = yield self.cardscollection.find_one_and_update(
             {"code": code},
@@ -95,7 +95,7 @@ class BonusProcessing(XMLRPC):
         """
         Dec balance by code
         """
-        println('Call DecBalance' + repr(request.getClientIP()))
+        println('Call DecBalance' + repr(request.getClientIP()) + ' card ' + repr(code) + ' balance ' + repr(dec_value))
 
         rec = yield self.cardscollection.find_one_and_update(
             {"code": code},
