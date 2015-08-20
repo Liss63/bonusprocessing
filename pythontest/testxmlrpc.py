@@ -18,19 +18,19 @@ def work():
     for i in xrange(rcount):
         cardcode = uuid.uuid4().hex
         t = time.time()
-        s.AddCard(cardcode, 0)
+        s.card.AddCard(cardcode, 0)
         tadd += time.time() - t
         t = time.time()
-        s.SetBalance(cardcode, 5)
+        s.card.SetBalance(cardcode, 5)
         tset += time.time() - t
         t = time.time()
-        s.IncBalance(cardcode, 2)
+        s.card.IncBalance(cardcode, 2)
         tinc += time.time() - t
         t = time.time()
-        s.DecBalance(cardcode, 7)
+        s.card.DecBalance(cardcode, 7)
         tdec += time.time() - t
         t = time.time()
-        s.GetBalance(cardcode)
+        s.card.GetBalance(cardcode)
         tget += time.time() - t
 
 
