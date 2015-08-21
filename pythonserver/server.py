@@ -6,6 +6,17 @@ from pymongo import ReturnDocument
 from twisted.python.util import println
 
 
+class DefaultHandler(XMLRPC):
+    @withRequest
+    @defer.inlineCallbacks
+    def xmlrpc_echo(self, request, x):
+        """
+        Return all passed args.
+        """
+        println('Call echo ' + repr(request.getClientIP()))
+        defer.returnValue((yield x))
+
+
 class BonusProcessing(XMLRPC):
     """
     An example object to be published.
@@ -20,15 +31,6 @@ class BonusProcessing(XMLRPC):
         connection = ConnectionPool()
         self.db = connection.bonusprocessing
         self.cardscollection = self.db.cards
-
-    @withRequest
-    @defer.inlineCallbacks
-    def xmlrpc_echo(self, request, x):
-        """
-        Return all passed args.
-        """
-        println('Call echo ' + repr(request.getClientIP()))
-        defer.returnValue((yield x))
 
     @withRequest
     @defer.inlineCallbacks
@@ -110,6 +112,7 @@ class BonusProcessing(XMLRPC):
 if __name__ == '__main__':
     from twisted.internet import reactor
 
-    r = BonusProcessing()
+    r = DefaultHandler()
+    r.putSubHandler('card', BonusProcessing())
     reactor.listenTCP(7080, Site(r))
     reactor.run()
